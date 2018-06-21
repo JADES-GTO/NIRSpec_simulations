@@ -1,0 +1,709 @@
+#########################################################################
+# IDENT			20936pzs.logfile
+# LANGUAGE		None
+# AUTHOR		P.FERRUIT          
+# PURPOSE		Log file of the commands used for the preparation of
+#				scenes for the galaxy #20936pzs (cube provided by
+#               Camilla).
+#
+#########################################################################
+
+#########################################################################
+# 13.02.2018 PF Creating the "unity" spectrum, scaled by a factor
+#   1e-17 to avoid having eextremely large numbers
+#########################################################################
+
+# Unity spectrum with a full wavelength coverage
+from nrspylib.io import spectrum as c_spectrum
+nbpix = 101
+start = 0.4e-6
+end = 6.0e-6
+step = (end - start) / (nbpix - 1)
+value = 1.0e-17
+tmp = c_spectrum.Spectrum()
+tmp.m_createRegularSpectrum(nbpix, start, step, value=value)
+filename = './data/unityspectrum.fits'
+tmp.m_writeToSimpleFITS(filename)
+
+
+#########################################################################
+# 29.05.2018 PF Creating the scenes corresponding to a representative
+# 4-point dither pattern with the source GAL #20936pzs provided by
+# Camilla
+# CAUTION: this is a first attempt to check the code making use of the
+# SIAF XML table ahead of the GTO GA training session.
+#########################################################################
+source activate nips
+pycharm
+cd nrspysim-scenes/ips-scenes/20150803-Camilla-D1
+ipython
+run p3_create_scene_20936pzs_10x './data/20936' '2D_gal20936_prior_z.fits' '../NIRSpec_SIAF.xml' './GAL20936pzs/scenes' 'GAL20936pzs_10' 'CLEAR'
+
+
+
+
+#########################################################################
+# 13.02.2018 PF Creating the scenes corresponding to a 4-point dither
+# pattern with the source GAL #20936pzs provided by Camilla
+#########################################################################
+source activate nips
+pycharm
+cd nrspysim-scenes/ips-scenes/20150803-Camilla-D1
+ipython
+# Regenerating the SIAF reference file using the latest reference file
+# library.
+run p3_convert_siaf
+mkdir GAL20936pzs
+mkdir GAL20936pzs/scenes
+# run p3_create_scene_20936pzs './data/20936' '2D_gal20936_prior_z.fits' '../nrs_siaf_clear_1.0.0_20170711.fits' './GAL20936pzs/scenes' 'GAL20936pzs_01' 'CLEAR'
+# CAUTION: there is a problem with astropy.fits I/O and the saving
+# of a table with vectors in cells takes ages so it really
+# takes a long time to run this script...
+# Reran the script with v1.0.1 to crrect an erro in the list table (PS instead of ES)
+# Did not udate the object files. PF 14.02.2018
+=====================================
+p3_create_scene_20936pzs.py
+Version: 1.0.0
+2018-02-13T12:55:20.314613
+=====================================
+# Input path : ./data/20936
+# Input file : 2D_gal20936_prior_z.fits
+# Normalisation factor fro the cube: {:12.6e} (unitless, multiplicative)
+# Spaxel size: 0.10 x 0.10 (arcsec x arcsec)
+# Input SIAF table: ../nrs_siaf_clear_1.0.0_20170711.fits
+# Output path: ./GAL20936pzs/scenes
+# Prefix for the output scene folder name: GAL20936pzs_01
+# Image scale conversion along the spectral direction (x-axis) : 103.30 mas/slicer
+# Image scale conversion along the spatial direction (x-axis)  : 107.30 mas/pixel
+# NIRSpec configuration: CLEAR/MIRROR
+# Path to the model folders: /Users/pferruit/PycharmProjects/nirspec27/JWST_Python/data/IQLAC
+# Name of the  geometrical model of NIRSpec and the OTE: NIRS_FM2_05_CV3_FIT1.
+# Loading the input file: 2D_gal20936_prior_z.fits
+(59, 59, 10120)
+#    * Cube spatial size: ( 59 , 59 )
+#    * Cube spectral size: 10120
+#    * Cube step size: ( 0.100 , 0.100 )
+#    * Cube start value: ( -2.900 , -2.900 )
+# Loading the SIAF table.
+# Preparing the dither sequence.
+# [01] (-2.250,-0.750) (-0.232,-0.080) (   0.083,  -0.138)
+# [02] (1.250,1.750) (0.129,0.188) (   0.083,  -0.138)
+# [03] (-0.250,-1.250) (-0.026,-0.134) (   0.083,  -0.138)
+# [04] (-0.750,2.250) (-0.077,0.241) (   0.083,  -0.138)
+# Initialising the geometrical models (OTE + NIRSpec MOS + NIRSpec IFU).
+# [01] Preparing the output folder: GAL20936pzs_01-01
+# CAUTION: the output folder already exists. Contents will be overwritten.
+# [01] Creating the object source file.
+# [01] Creating the list of objects.
+# Generating the figures in the V2V3 plane.
+# [02] Preparing the output folder: GAL20936pzs_01-02
+# CAUTION: the output folder already exists. Contents will be overwritten.
+# [02] Creating the object source file.
+# [02] Creating the list of objects.
+# Generating the figures in the V2V3 plane.
+# [03] Preparing the output folder: GAL20936pzs_01-03
+# CAUTION: the output folder already exists. Contents will be overwritten.
+# [03] Creating the object source file.
+# [03] Creating the list of objects.
+# Generating the figures in the V2V3 plane.
+# [04] Preparing the output folder: GAL20936pzs_01-04
+# CAUTION: the output folder already exists. Contents will be overwritten.
+# [04] Creating the object source file.
+# [04] Creating the list of objects.
+# Generating the figures in the V2V3 plane.
+
+
+#########################################################################
+# 13.02.2018 PF Creating the associated background scene
+#########################################################################
+source activate nips
+pycharm
+cd nrspysim-scenes/ips-scenes/20150803-Camilla-D1
+ipython
+run p3_create_scene_background './data/backgrounds_1.2-zodi_CL630_TOT_Wm-2m-1arcsec-2.fits' './GAL20936pzs/scenes' 'background'
+# Run with v1.0.1 to correct a bug. PF 14.02.2018
+=====================================
+p3_create_scene_background.py
+Version: 1.0.0
+2018-02-14T05:57:13.569301
+=====================================
+# Input spectrum: ./data/backgrounds_1.2-zodi_CL630_TOT_Wm-2m-1arcsec-2.fits
+# Normalisation factor to be applied to the input spectrum: 1.000
+# Output path: ./GAL20936pzs/scenes
+# Output scene folder: background
+# A background source will be generated.
+#  * Bounding box: [3.500 , 9.500 , -10.000 , -4.200] ([xmin,xmax,ymin,ymax], in arcmin.
+# NIRSpec configuration: CLEAR/MIRROR
+# Path to the model folders: /Users/pferruit/PycharmProjects/nirspec27/JWST_Python/data/IQLAC
+# Name of the  geometrical model of NIRSpec and the OTE: NIRS_FM2_05_CV3_FIT1.
+# Initialising the geometrical models (OTE + NIRSpec MOS + NIRSpec IFU).
+# Loading the input spectrum.
+# Preparing the output folder.
+# CAUTION: the output folder already exists. Contents will be overwritten.
+# Generating the grid of position used to define the background object.
+# Generating the associated figure.
+# Creating the object.
+# Creating the object.
+# Creating the list of objects.
+# Generating an MSA configuration file #1 (all closed, perfect MSA).
+# Generating the associated report.
+# Loading the OTIS MSA operability map.
+WARNING - Micro-shutter list object has already been initialized.
+Contents will be overwritten.
+# Generating an MSA configuration file #2 (all closed, OTIS MSA).
+# Generating the associated report.
+
+
+run p3_create_scene_background './data/unityspectrum.fits' './GAL20936pzs/scenes' 'unity'
+=====================================
+p3_create_scene_background.py
+Version: 1.0.0
+2018-02-14T06:00:42.280880
+=====================================
+# Input spectrum: ./data/unityspectrum.fits
+# Normalisation factor to be applied to the input spectrum: 1.000
+# Output path: ./GAL20936pzs/scenes
+# Output scene folder: unity
+# A background source will be generated.
+#  * Bounding box: [3.500 , 9.500 , -10.000 , -4.200] ([xmin,xmax,ymin,ymax], in arcmin.
+# NIRSpec configuration: CLEAR/MIRROR
+# Path to the model folders: /Users/pferruit/PycharmProjects/nirspec27/JWST_Python/data/IQLAC
+# Name of the  geometrical model of NIRSpec and the OTE: NIRS_FM2_05_CV3_FIT1.
+# Initialising the geometrical models (OTE + NIRSpec MOS + NIRSpec IFU).
+# Loading the input spectrum.
+# Preparing the output folder.
+# CAUTION: the output folder already exists. Contents will be overwritten.
+# Generating the grid of position used to define the background object.
+# Generating the associated figure.
+# Creating the object.
+# Creating the object.
+# Creating the list of objects.
+# Generating an MSA configuration file #1 (all closed, perfect MSA).
+# Generating the associated report.
+# Loading the OTIS MSA operability map.
+WARNING - Micro-shutter list object has already been initialized.
+Contents will be overwritten.
+# Generating an MSA configuration file #2 (all closed, OTIS MSA).
+# Generating the associated report.
+
+
+
+
+#########################################################################
+# 12.07.2017 PF Running the simulations on QUEEN
+#########################################################################
+cd /local/pferruit/workspace/ips3b
+vi ./src/ips/ips.conf
+# Pointing to the db_CV3_SKY_CLEAR_PRISM
+./src/ips/ips
+
+# 13.07.2017 Running the 4 IFU computations in parallels
+# on queen
+# * memory usage: ~40 GB)
+# * computation time: ~1h30
+
+# ============================================================
+# ** Description:
+# Basic centered point source simulation - grid of emission
+# lines - IFU
+# ** Database:
+# /local/pferruit/IPS/databases/db_CV3_CLEAR_PRISM
+# ** Model:
+# IFU-CLEAR-PRISM
+# ** Scene repository:
+# /local/pferruit/workspace/ips-scenes/20170711-PS-CONT/PS-CONT-12/scenes
+# ** Scene folder:
+# PS-CONT-12d-01 to 04
+# ** MOS configuration:
+# n/a (IFU only)
+# ** GWA positioning:
+# 0.0,0.0,0.0
+# ** Wavelength sampling parameter:
+# 0.1
+# ** Oversampling:
+# 30
+# ** FFT matrix size:
+# 2048x2048
+# ** Contrast threshold:
+# n/a
+# ** Output folder:
+# CLEAR-PRISM_SLIT_PS-CONT-12d-01_000 to 12d-04_000
+# ============================================================
+
+# ============================================================
+# Description:
+# 4-point-nodding IFU observations - unity spectrum - point #1
+# Database:
+# /local/pferruit/IPS/databases/db_CV3_CLEAR_PRISM
+# Model:
+# IFU-CLEAR-PRISM
+# Scene repository:
+# /local/pferruit/workspace/ips-scenes/20160714-PS-CONT/PS-CONT-12/scenes
+# Scene folder:
+# PS-CONT-12d-01 (limited 1-5 micron coverage to avoid an IPS bug)
+# MOS configuration:
+# n/a (IFU only)
+# GWA positioning: 0.0,0.0,0.0
+# Wavelength sampling parameter: 0.1
+# Oversampling: 30
+# FFT matrix size: 2048x2048
+# Contrast threshold: n/a
+# ============================================================
+
+
+
+#########################################################################
+# 25.07.2017 PF Running the simulations on EMPEROR - PS-CONT-12d_XX
+#########################################################################
+cd /local2/pferruit/workspace/ips4
+vi ./src/ips/ips.conf
+# Pointing to the db_CV3_SKY_CLEAR_PRISM
+./src/ips/ips
+
+# ============================================================
+# Database: /local2/pferruit/ips/databases/db_ips4-hr-gto
+# Scene repository:
+# /local2/pferruit/pycharm/ips-scene/20150803-Camilla-D1
+# Scene folder:
+# GAL20936pzs/scenes/GAL20936pzs_01-01
+# IPS model: IFS-F170LP-G235H
+# Output folder:
+# IFS-F170LP-G235H_IFU_GAL20936pzs_01-01_002
+# Output file:
+# IFS-F170LP-G235H_IFU_GAL20936pzs_01-01_002.erm
+#
+# MOS configuration: n/a
+# GWA positioning: 0.0,0.0,0.0
+# Wavelength sampling parameter: 0.1
+# Oversampling: 30
+# FFT matrix size: 2048x2048
+# Contrast threshold: n/a
+# ------------------------------------------------------------
+# Machine:		emperor
+# Start:		14.02.2018 08:51
+# End:			14.02.2018 19:17
+# Duration:		10h30
+# Standalone:		yes
+# Memory usage		~20GB
+# ============================================================
+
+# ============================================================
+# Database: /local2/pferruit/ips/databases/db_ips4-hr-gto
+# Scene repository:
+# /local2/pferruit/pycharm/ips-scene/20150803-Camilla-D1
+# Scene folder:
+# GAL20936pzs/scenes/GAL20936pzs_01-01
+# IPS model: IFS-F170LP-G235H
+# Output folder:
+# IFS-F170LP-G235H_IFU_GAL20936pzs_01-01_002
+# Output file:
+# IFS-F170LP-G235H_IFU_GAL20936pzs_01-01_002.erm
+#
+# MOS configuration: n/a
+# GWA positioning: 0.0,0.0,0.0
+# Wavelength sampling parameter: 0.1
+# Oversampling: 30
+# FFT matrix size: 2048x2048
+# Contrast threshold: n/a
+# ------------------------------------------------------------
+# Machine:		emperor
+# Start:		14.02.2018 08:51
+# End:			14.02.2018 19:17
+# Duration:		10h30
+# Standalone:		yes
+# Memory usage		~20GB
+# ============================================================
+
+# ============================================================
+# Database: /local2/pferruit/ips/databases/db_ips4-hr-gto
+# Scene repository:
+# /local2/pferruit/pycharm/ips-scene/20150803-Camilla-D1
+# Scene folder:
+# GAL20936pzs/scenes/GAL20936pzs_01-01
+# IPS model: IFS-F170LP-G235H
+# Output folders:
+# IFS-F170LP-G235H_IFU_background_000
+# IFS-F170LP-G235H_IFU_unity_000
+# Output files:
+# IFS-F170LP-G235H_IFU_background_000.erm
+# IFS-F170LP-G235H_IFU_unity_000.erm
+# MOS configuration: n/a
+# GWA positioning: 0.0,0.0,0.0
+# Wavelength sampling parameter: 0.1
+# Oversampling: 30
+# FFT matrix size: 2048x2048
+# Contrast threshold: n/a
+# ------------------------------------------------------------
+# Machine:		emperor
+# Start:		15.02.2018 08:05
+# End:			14.02.2018 08:30
+# Duration:		~25min
+# Standalone:		2 BS+CONT IFS simultaneous
+#			computations (CPUs at ~60%)
+# Memory usage		not recorded
+# ============================================================
+
+# ============================================================
+# Database: /local2/pferruit/ips/databases/db_ips4-hr-gto
+# Scene repository:
+# /local2/pferruit/pycharm/ips-scene/20150803-Camilla-D1
+# Scene folder:
+# GAL20936pzs/scenes/background and unity
+# IPS model: F170LP-G235H
+# Output folders:
+# F170LP-G235H_MOS_background_001
+# F170LP-G235H_SLIT_background_001
+# F170LP-G235H_MOS_unity_001
+# F170LP-G235H_SLIT_unity_001
+# Output files:
+# F170LP-G235H_MOS_background_001.erm
+# F170LP-G235H_SLIT_background_001.erm
+# F170LP-G235H_MOS_unity_001.erm
+# F170LP-G235H_SLIT_unity_001.erm
+#
+# MOS configuration: all_closed_OTIS.mos
+# GWA positioning: 0.0,0.0,0.0
+# Wavelength sampling parameter: 0.1
+# Oversampling: 30
+# FFT matrix size: 2048x2048
+# Contrast threshold: n/a
+# ------------------------------------------------------------
+# Machine:		emperor
+# Start:		15.02.2018 09:12
+# End:			< 1 min
+# Duration:		< 1 min
+# Standalone:		2 BS+CONT MOS+SLIT simultaneous
+#			computations
+# Memory usage		not recorded
+# ============================================================
+
+# ============================================================
+# Database: /local2/pferruit/ips/databases/db_ips4-hr-gto
+# Scene repository:
+# /local2/pferruit/pycharm/ips-scene/20150803-Camilla-D1
+# Scene folder:
+# GAL20936pzs/scenes/GAL20936pzs_01-02 + 03 + 04
+# IPS model: IFS-F170LP-G235H
+# Output folders:
+# IFS-F170LP-G235H_IFU_GAL20936pzs_01-02_000
+# IFS-F170LP-G235H_IFU_GAL20936pzs_01-03_000
+# IFS-F170LP-G235H_IFU_GAL20936pzs_01-04_000
+# Output file:
+# IFS-F170LP-G235H_IFU_GAL20936pzs_01-02_000.erm
+# IFS-F170LP-G235H_IFU_GAL20936pzs_01-03_000.erm
+# IFS-F170LP-G235H_IFU_GAL20936pzs_01-04_000.erm
+#
+# MOS configuration: n/a
+# GWA positioning: 0.0,0.0,0.0
+# Wavelength sampling parameter: 0.1
+# Oversampling: 30
+# FFT matrix size: 2048x2048
+# Contrast threshold: n/a
+# ------------------------------------------------------------
+# Machine:		emperor
+# Start:		15.02.2018 09:20
+# End:			16.02.2018 16:10
+# Duration:		31h (i.e. ~3 x single computation)
+# Standalone:		3 simultaneous computations
+# Memory usage		~50-60GB
+# ============================================================
+
+cd /local2/pferruit/pycharm/ips-scenes/20150803-Camilla-D1/GAL20936pzs
+mkdir erms
+mkdir erms/run1
+
+cd /local2/pferruit/ips/databases/db-ips4-hr-gto/Electron\ Rates
+cp IFS-F170LP-G235H_IFU_GAL20936pzs_01-01_002/IFS-F170LP-G235H_IFU_GAL20936pzs_01-01_002.erm /local2/pferruit/pycharm/ips-scenes/20150803-Camilla-D1/GAL20936pzs/erms/run1/ifs-f170lp-g235h-galaxy-01.erm
+cp IFS-F170LP-G235H_IFU_GAL20936pzs_01-02_000/IFS-F170LP-G235H_IFU_GAL20936pzs_01-02_000.erm /local2/pferruit/pycharm/ips-scenes/20150803-Camilla-D1/GAL20936pzs/erms/run1/ifs-f170lp-g235h-galaxy-02.erm
+cp IFS-F170LP-G235H_IFU_GAL20936pzs_01-03_000/IFS-F170LP-G235H_IFU_GAL20936pzs_01-03_000.erm /local2/pferruit/pycharm/ips-scenes/20150803-Camilla-D1/GAL20936pzs/erms/run1/ifs-f170lp-g235h-galaxy-03.erm
+cp IFS-F170LP-G235H_IFU_GAL20936pzs_01-04_000/IFS-F170LP-G235H_IFU_GAL20936pzs_01-04_000.erm /local2/pferruit/pycharm/ips-scenes/20150803-Camilla-D1/GAL20936pzs/erms/run1/ifs-f170lp-g235h-galaxy-04.erm
+
+cp IFS-F170LP-G235H_IFU_background_000/IFS-F170LP-G235H_IFU_background_000.erm  /local2/pferruit/pycharm/ips-scenes/20150803-Camilla-D1/GAL20936pzs/erms/run1/ifs-f170lp-g235h-background.erm
+cp IFS-F170LP-G235H_IFU_unity_000/IFS-F170LP-G235H_IFU_unity_000.erm  /local2/pferruit/pycharm/ips-scenes/20150803-Camilla-D1/GAL20936pzs/erms/run1/ifs-f170lp-g235h-unity.erm
+
+cp F170LP-G235H_SLIT_unity_001/F170LP-G235H_SLIT_unity_001.erm  /local2/pferruit/pycharm/ips-scenes/20150803-Camilla-D1/GAL20936pzs/erms/run1/slit-f170lp-g235h-unity.erm
+cp F170LP-G235H_SLIT_background_001/F170LP-G235H_SLIT_background_001.erm  /local2/pferruit/pycharm/ips-scenes/20150803-Camilla-D1/GAL20936pzs/erms/run1/slit-f170lp-g235h-background.erm
+
+cp F170LP-G235H_MOS_unity_001/F170LP-G235H_MOS_unity_001.erm  /local2/pferruit/pycharm/ips-scenes/20150803-Camilla-D1/GAL20936pzs/erms/run1/mos-f170lp-g235h-unity.erm
+cp F170LP-G235H_MOS_background_001/F170LP-G235H_MOS_background_001.erm  /local2/pferruit/pycharm/ips-scenes/20150803-Camilla-D1/GAL20936pzs/erms/run1/mos-f170lp-g235h-background.erm
+
+
+# ============================================================
+# Database: /local2/pferruit/ips/databases/db_ips4-hr-gto
+# Scene repository:
+# /local2/pferruit/pycharm/ips-scene/20150803-Camilla-D1
+# Scene folder:
+# GAL20936pzs/scenes/GAL20936pzs_01-02 + 03 + 04
+# IPS model: IFS-F170LP-G235H
+# Output folders:
+# IFS-F170LP-G235H_IFU_GAL20936pzs_01-02_000
+# IFS-F170LP-G235H_IFU_GAL20936pzs_01-03_000
+# IFS-F170LP-G235H_IFU_GAL20936pzs_01-04_000
+# Output file:
+# IFS-F170LP-G235H_IFU_GAL20936pzs_01-02_000.erm
+# IFS-F170LP-G235H_IFU_GAL20936pzs_01-03_000.erm
+# IFS-F170LP-G235H_IFU_GAL20936pzs_01-04_000.erm
+#
+# MOS configuration: n/a
+# GWA positioning: 0.0,0.0,0.0
+# Wavelength sampling parameter: 0.1
+# Oversampling: 30
+# FFT matrix size: 2048x2048
+# Contrast threshold: n/a
+# ------------------------------------------------------------
+# Machine:		emperor
+# Start:		15.02.2018 09:20
+# End:			16.02.2018 16:10
+# Duration:		31h (i.e. ~3 x single computation)
+# Standalone:		3 simultaneous computations
+# Memory usage		~50-60GB
+# ============================================================
+
+# ============================================================
+# Database: /local2/pferruit/ips/databases/db_ips4-hr-gto
+# Scene repository:
+# /local2/pferruit/pycharm/ips-scene/20150803-Camilla-D1
+# Scene folder:
+# GAL20936pzs/scenes/background and unity
+# IPS model: F290LP-G395H
+# Output folders:
+# F290LP-G395H_MOS_background_000
+# F290LP-G395H_SLIT_background_000
+# F290LP-G395H_MOS_unity_000
+# F290LP-G395H_SLIT_unity_000
+# Output files:
+# F290LP-G395H_MOS_background_000.erm
+# F290LP-G395H_SLIT_background_000.erm
+# F290LP-G395H_MOS_unity_000.erm
+# F290LP-G395H_SLIT_unity_000.erm
+#
+# MOS configuration: all_closed_OTIS.mos (realistic)
+# GWA positioning: 0.0,0.0,0.0
+# Wavelength sampling parameter: 0.1
+# Oversampling: 30
+# FFT matrix size: 2048x2048
+# Contrast threshold: n/a
+# ------------------------------------------------------------
+# Machine:		emperor
+# Start:		20.02.2018 15:05
+# End:			not recorded
+# Duration:		MOS ~2min, IFS ~22min
+# Standalone:		2 BS+CONT MOS+SLIT + 2 BS+CONT IFU
+# Memory usage		~30GB
+# ============================================================
+
+cd /local2/pferruit/pycharm/ips-scenes/20150803-Camilla-D1/GAL20936pzs
+mkdir erms
+mkdir erms/run2
+
+cd /local2/pferruit/ips/databases/db-ips4-hr-gto/Electron\ Rates
+cp IFS-F290LP-G395H_IFU_GAL20936pzs_01-01_000/IFS-F290LP-G395H_IFU_GAL20936pzs_01-01_000.erm /local2/pferruit/pycharm/ips-scenes/20150803-Camilla-D1/GAL20936pzs/erms/run2/ifs-F290LP-G395H-galaxy-01.erm
+cp IFS-F290LP-G395H_IFU_GAL20936pzs_01-02_000/IFS-F290LP-G395H_IFU_GAL20936pzs_01-02_000.erm /local2/pferruit/pycharm/ips-scenes/20150803-Camilla-D1/GAL20936pzs/erms/run2/ifs-F290LP-G395H-galaxy-02.erm
+cp IFS-F290LP-G395H_IFU_GAL20936pzs_01-03_000/IFS-F290LP-G395H_IFU_GAL20936pzs_01-03_000.erm /local2/pferruit/pycharm/ips-scenes/20150803-Camilla-D1/GAL20936pzs/erms/run2/ifs-F290LP-G395H-galaxy-03.erm
+cp IFS-F290LP-G395H_IFU_GAL20936pzs_01-04_000/IFS-F290LP-G395H_IFU_GAL20936pzs_01-04_000.erm /local2/pferruit/pycharm/ips-scenes/20150803-Camilla-D1/GAL20936pzs/erms/run2/ifs-F290LP-G395H-galaxy-04.erm
+
+cp IFS-F290LP-G395H_IFU_background_000/IFS-F290LP-G395H_IFU_background_000.erm  /local2/pferruit/pycharm/ips-scenes/20150803-Camilla-D1/GAL20936pzs/erms/run2/ifs-F290LP-G395H-background.erm
+cp IFS-F290LP-G395H_IFU_unity_000/IFS-F290LP-G395H_IFU_unity_000.erm  /local2/pferruit/pycharm/ips-scenes/20150803-Camilla-D1/GAL20936pzs/erms/run2/ifs-F290LP-G395H-unity.erm
+
+cp F290LP-G395H_SLIT_unity_000/F290LP-G395H_SLIT_unity_000.erm  /local2/pferruit/pycharm/ips-scenes/20150803-Camilla-D1/GAL20936pzs/erms/run2/slit-F290LP-G395H-unity.erm
+cp F290LP-G395H_SLIT_background_000/F290LP-G395H_SLIT_background_000.erm  /local2/pferruit/pycharm/ips-scenes/20150803-Camilla-D1/GAL20936pzs/erms/run2/slit-F290LP-G395H-background.erm
+
+cp F290LP-G395H_MOS_unity_000/F290LP-G395H_MOS_unity_000.erm  /local2/pferruit/pycharm/ips-scenes/20150803-Camilla-D1/GAL20936pzs/erms/run2/mos-F290LP-G395H-unity.erm
+cp F290LP-G395H_MOS_background_000/F290LP-G395H_MOS_background_000.erm  /local2/pferruit/pycharm/ips-scenes/20150803-Camilla-D1/GAL20936pzs/erms/run2/mos-F290LP-G395H-background.erm
+
+
+# ============================================================
+# Database: /local2/pferruit/ips/databases/db_ips4-hr-gto
+# Scene repository:
+# /local2/pferruit/pycharm/ips-scene/20150803-Camilla-D1
+# Scene folder:
+# GAL20936pzs/scenes/background and unity
+# IPS model: F100LP-G140H
+# Output folders:
+# Output folders:
+# IFS-F100LP-G140H_IFU_GAL20936pzs_01-01_000
+# IFS-F100LP-G140H_IFU_GAL20936pzs_01-02_000
+# IFS-F100LP-G140H_IFU_GAL20936pzs_01-03_000
+# IFS-F100LP-G140H_IFU_GAL20936pzs_01-04_000
+# Output file:
+# IFS-F100LP-G140H_IFU_GAL20936pzs_01-01_000.erm
+# IFS-F100LP-G140H_IFU_GAL20936pzs_01-02_000.erm
+# IFS-F100LP-G140H_IFU_GAL20936pzs_01-03_000.erm
+# IFS-F100LP-G140H_IFU_GAL20936pzs_01-04_000.erm
+#
+# MOS configuration: n/a
+# GWA positioning: 0.0,0.0,0.0
+# Wavelength sampling parameter: 0.1
+# Oversampling: 30
+# FFT matrix size: 2048x2048
+# Contrast threshold: n/a
+# ------------------------------------------------------------
+# Machine:		emperor
+# Start:		20.02.2018
+# End:			not recorded
+# Duration:		MOS ~2min, IFS ~22min
+# Standalone:		2 BS+CONT MOS+SLIT + 2 BS+CONT IFU
+# Memory usage		not recorded
+# ============================================================
+
+
+cd /local2/pferruit/pycharm/ips-scenes/20150803-Camilla-D1/GAL20936pzs
+mkdir erms
+mkdir erms/run3
+
+cd /local2/pferruit/ips/databases/db-ips4-hr-gto/Electron\ Rates
+cp IFS-F100LP-G140H_IFU_GAL20936pzs_01-01_000/IFS-F100LP-G140H_IFU_GAL20936pzs_01-01_000.erm /local2/pferruit/pycharm/ips-scenes/20150803-Camilla-D1/GAL20936pzs/erms/run3/ifs-F100LP-G140H-galaxy-01.erm
+cp IFS-F100LP-G140H_IFU_GAL20936pzs_01-02_000/IFS-F100LP-G140H_IFU_GAL20936pzs_01-02_000.erm /local2/pferruit/pycharm/ips-scenes/20150803-Camilla-D1/GAL20936pzs/erms/run3/ifs-F100LP-G140H-galaxy-02.erm
+cp IFS-F100LP-G140H_IFU_GAL20936pzs_01-03_000/IFS-F100LP-G140H_IFU_GAL20936pzs_01-03_000.erm /local2/pferruit/pycharm/ips-scenes/20150803-Camilla-D1/GAL20936pzs/erms/run3/ifs-F100LP-G140H-galaxy-03.erm
+cp IFS-F100LP-G140H_IFU_GAL20936pzs_01-04_000/IFS-F100LP-G140H_IFU_GAL20936pzs_01-04_000.erm /local2/pferruit/pycharm/ips-scenes/20150803-Camilla-D1/GAL20936pzs/erms/run3/ifs-F100LP-G140H-galaxy-04.erm
+
+cp IFS-F100LP-G140H_IFU_background_000/IFS-F100LP-G140H_IFU_background_000.erm  /local2/pferruit/pycharm/ips-scenes/20150803-Camilla-D1/GAL20936pzs/erms/run3/ifs-F100LP-G140H-background.erm
+cp IFS-F100LP-G140H_IFU_unity_000/IFS-F100LP-G140H_IFU_unity_000.erm  /local2/pferruit/pycharm/ips-scenes/20150803-Camilla-D1/GAL20936pzs/erms/run3/ifs-F100LP-G140H-unity.erm
+
+cp F100LP-G140H_SLIT_unity_000/F100LP-G140H_SLIT_unity_000.erm  /local2/pferruit/pycharm/ips-scenes/20150803-Camilla-D1/GAL20936pzs/erms/run3/slit-F100LP-G140H-unity.erm
+cp F100LP-G140H_SLIT_background_000/F100LP-G140H_SLIT_background_000.erm  /local2/pferruit/pycharm/ips-scenes/20150803-Camilla-D1/GAL20936pzs/erms/run3/slit-F100LP-G140H-background.erm
+
+cp F100LP-G140H_MOS_unity_000/F100LP-G140H_MOS_unity_000.erm  /local2/pferruit/pycharm/ips-scenes/20150803-Camilla-D1/GAL20936pzs/erms/run3/mos-F100LP-G140H-unity.erm
+cp F100LP-G140H_MOS_background_000/F100LP-G140H_MOS_background_000.erm  /local2/pferruit/pycharm/ips-scenes/20150803-Camilla-D1/GAL20936pzs/erms/run3/mos-F100LP-G140H-background.erm
+
+
+# ============================================================
+# Database: /local2/pferruit/ips/databases/db_ips4-hr-gto
+# Scene repository:
+# /local2/pferruit/pycharm/ips-scene/20150803-Camilla-D1
+# Scene folder:
+# GAL20936pzs/scenes/background and unity
+# IPS model: IFS-CLEAR-MIRROR and CLEAR-MIRROR
+# Output folders:
+# CLEAR-MIRROR_IFS_background_000
+# CLEAR-MIRROR_MOS_background_000
+# CLEAR-MIRROR_SLIT_background_000
+# CLEAR-MIRROR_IFS_unity_000
+# CLEAR-MIRROR_MOS_unity_000
+# CLEAR-MIRROR_SLIT_unity_000
+# Output files:
+# CLEAR-MIRROR_IFS_background_000.erm
+# CLEAR-MIRROR_MOS_background_000.erm
+# CLEAR-MIRROR_SLIT_background_000.erm
+# CLEAR-MIRROR_IFS_unity_000.erm
+# CLEAR-MIRROR_MOS_unity_000.erm
+# CLEAR-MIRROR_SLIT_unity_000.erm
+#
+# MOS configuration: all_closed_OTIS.mos (realistic)
+# GWA positioning: 0.0,0.0,0.0
+# Wavelength sampling parameter: 0.1
+# Oversampling: 30
+# FFT matrix size: 2048x2048
+# Contrast threshold: n/a
+# ------------------------------------------------------------
+# Machine:		emperor
+# Start:		22.02.2018
+# End:			not recorded
+# Duration:		~2min each
+# Standalone:		mixture of cases
+# Memory usage
+# ============================================================
+
+# ============================================================
+# Database: /local2/pferruit/ips/databases/db_ips4-hr-gto
+# Scene repository:
+# /local2/pferruit/pycharm/ips-scene/20150803-Camilla-D1
+# Scene folder:
+# GAL20936pzs/scenes/background and unity
+# IPS model: IFS-CLEAR-MIRROR
+# Output folders:
+# Output folders:
+# IFS-CLEAR-MIRROR_IFU_GAL20936pzs_01-01_000
+# IFS-CLEAR-MIRROR_IFU_GAL20936pzs_01-02_000
+# IFS-CLEAR-MIRROR_IFU_GAL20936pzs_01-03_000
+# IFS-CLEAR-MIRROR_IFU_GAL20936pzs_01-04_000
+# Output file:
+# IFS-CLEAR-MIRROR_IFU_GAL20936pzs_01-01_000.erm
+# IFS-CLEAR-MIRROR_IFU_GAL20936pzs_01-02_000.erm
+# IFS-CLEAR-MIRROR_IFU_GAL20936pzs_01-03_000.erm
+# IFS-CLEAR-MIRROR_IFU_GAL20936pzs_01-04_000.erm
+#
+# MOS configuration: n/a
+# GWA positioning: 0.0,0.0,0.0
+# Wavelength sampling parameter: 0.1
+# Oversampling: 30
+# FFT matrix size: 2048x2048
+# Contrast threshold: n/a
+# ------------------------------------------------------------
+# Machine:		emperor
+# Start:		22.02.2018 15:20
+# End:			not recorded
+# Duration:		~2 to ~10min
+# Standalone:		mixture of cases
+# Memory usage
+# ============================================================
+
+cd /local2/pferruit/pycharm/ips-scenes/20150803-Camilla-D1/GAL20936pzs
+mkdir erms
+mkdir erms/run4
+
+cd /local2/pferruit/ips/databases/db-ips4-hr-gto/Electron\ Rates
+cp IFS-CLEAR-MIRROR_IFU_GAL20936pzs_01-01_000/IFS-CLEAR-MIRROR_IFU_GAL20936pzs_01-01_000.erm /local2/pferruit/pycharm/ips-scenes/20150803-Camilla-D1/GAL20936pzs/erms/run4/ifs-CLEAR-MIRROR-galaxy-01.erm
+cp IFS-CLEAR-MIRROR_IFU_GAL20936pzs_01-02_000/IFS-CLEAR-MIRROR_IFU_GAL20936pzs_01-02_000.erm /local2/pferruit/pycharm/ips-scenes/20150803-Camilla-D1/GAL20936pzs/erms/run4/ifs-CLEAR-MIRROR-galaxy-02.erm
+cp IFS-CLEAR-MIRROR_IFU_GAL20936pzs_01-03_000/IFS-CLEAR-MIRROR_IFU_GAL20936pzs_01-03_000.erm /local2/pferruit/pycharm/ips-scenes/20150803-Camilla-D1/GAL20936pzs/erms/run4/ifs-CLEAR-MIRROR-galaxy-03.erm
+cp IFS-CLEAR-MIRROR_IFU_GAL20936pzs_01-04_000/IFS-CLEAR-MIRROR_IFU_GAL20936pzs_01-04_000.erm /local2/pferruit/pycharm/ips-scenes/20150803-Camilla-D1/GAL20936pzs/erms/run4/ifs-CLEAR-MIRROR-galaxy-04.erm
+
+cp IFS-CLEAR-MIRROR_IFU_background_000/IFS-CLEAR-MIRROR_IFU_background_000.erm  /local2/pferruit/pycharm/ips-scenes/20150803-Camilla-D1/GAL20936pzs/erms/run4/ifs-CLEAR-MIRROR-background.erm
+cp IFS-CLEAR-MIRROR_IFU_unity_000/IFS-CLEAR-MIRROR_IFU_unity_000.erm  /local2/pferruit/pycharm/ips-scenes/20150803-Camilla-D1/GAL20936pzs/erms/run4/ifs-CLEAR-MIRROR-unity.erm
+
+cp CLEAR-MIRROR_SLIT_unity_000/CLEAR-MIRROR_SLIT_unity_000.erm  /local2/pferruit/pycharm/ips-scenes/20150803-Camilla-D1/GAL20936pzs/erms/run4/slit-CLEAR-MIRROR-unity.erm
+cp CLEAR-MIRROR_SLIT_background_000/CLEAR-MIRROR_SLIT_background_000.erm  /local2/pferruit/pycharm/ips-scenes/20150803-Camilla-D1/GAL20936pzs/erms/run4/slit-CLEAR-MIRROR-background.erm
+
+cp CLEAR-MIRROR_MOS_unity_000/CLEAR-MIRROR_MOS_unity_000.erm  /local2/pferruit/pycharm/ips-scenes/20150803-Camilla-D1/GAL20936pzs/erms/run4/mos-CLEAR-MIRROR-unity.erm
+cp CLEAR-MIRROR_MOS_background_000/CLEAR-MIRROR_MOS_background_000.erm  /local2/pferruit/pycharm/ips-scenes/20150803-Camilla-D1/GAL20936pzs/erms/run4/mos-CLEAR-MIRROR-background.erm
+
+
+#########################################################################
+# 03.03.2018 PF Generating a first set of simulated count-rate maps
+# 07.03.2018 PF The IPC (cross-talk) was forgotten in the first
+#   computation. Bug corrected in the script. Rerunning it.
+# 20.03.2018 PF Rerunning it with the daily folder in the output
+# directory tree.
+# 27.04.2018 PF Rerunning it with the correct order of the JLAB and
+# pipeline ID strings in the folder names.
+#########################################################################
+source activate nips
+cd /Users/pferruit/PycharmProjects/nrspysim-scenes/ips-scenes/20150803-Camilla-D1/GAL20936pzs
+mkdir archive
+cd /Users/pferruit/PycharmProjects/nrspysim-scenes/ips-scenes/20150803-Camilla-D1
+ipython
+
+run p3_process_scene_20936pzs_01 './GAL20936pzs/erms/run1' 'F170LP' 'G235H' 1 205 './GAL20936pzs/archive' 'GAL2093pzs' -s 100
+
+
+#########################################################################
+# 04.03.2018 PF Processing a first simulated count-rate
+# maps using the old NIPS (2.7)
+#########################################################################
+source activate old
+cd /Users/pferruit/PycharmProjects/nrspysim-scenes/ips-scenes/20150803-Camilla-D1
+ipython
+run p_getCubeIFU './GAL20936pzs/archive/Day2018062/NRSGAL2093pzs-G-F170LP-G235H-01_1_1020_IPS_JW1_20180303T120000.000_20180303T120000.000' 'NRS_GAL2093pzs-G-F170LP-G235H-01.oldcts.fits' -1 './GAL20936pzs/pdata27/GAL2093pzs-G-F170LP-G235H-01_1020' -plot -p '/Users/pferruit/PycharmProjects/nirspec27/JWST_Python/data/IQLAC'
+
+#########################################################################
+# 07.03.2018 PF Generating a first st of simulated count-rate maps
+# based on real dark-subtracted dark count-tate maps
+# 20.03.2018 PF Rerunning it with the daily folder in the output
+# directory tree.
+# 27.04.2018 PF Rerunning it with the correct order of the JLAB and
+# pipeline ID strings in the folder names.
+#########################################################################
+source activate nips
+cd /Users/pferruit/PycharmProjects/nrspysim-scenes/ips-scenes/20150803-Camilla-D1
+ipython
+
+run p3_process_scene_20936pzs_02 './GAL20936pzs/erms/run1' 'F170LP' 'G235H' 1 205 './GAL20936pzs/archive' 'GAL2093pzs' -s 100
+
+#########################################################################
+# 07.03.2018 PF Processing a second simulated count-rate
+# maps using the old NIPS (2.7)
+#########################################################################
+source activate old
+cd /Users/pferruit/PycharmProjects/nrspysim-scenes/ips-scenes/20150803-Camilla-D1
+ipython
+run p_getCubeIFU './GAL20936pzs/archive/Day2018062/NRSGAL2093pzs-G-F170LP-G235H-01_1_2020_IPS_JW1_20180303T120000.000_20180303T120000.000' 'NRS_GAL2093pzs-G-F170LP-G235H-01.oldcts.fits' -1 './GAL20936pzs/pdata27/GAL2093pzs-G-F170LP-G235H-01_2020' -plot -p '/Users/pferruit/PycharmProjects/nirspec27/JWST_Python/data/IQLAC'
