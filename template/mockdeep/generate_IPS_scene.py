@@ -6,6 +6,7 @@ import datetime
 import io
 import shutil
 import numpy as np
+import json
 from astropy.io import fits as pyfits
 from matplotlib import pyplot as plt
 from nrspysim.scenes import continuum
@@ -29,29 +30,40 @@ _f_cgs2mks = 1.0e7
 # Factor to go from cgs to mks (for emission lines)
 _cgs2mks =  1.0e-3
 
-# Dictionary of lines that we treat separately from the continuum
-_line_dict =  {'HLyA_1216':1215.17, 'O2_3726':3727.32, 'O2_3729': 3729.23,
-                      'HBaG_4340':4340.47, 'HBaB_4861':4861.33, 'O3_4959':4958.91,
-                      'O3_5007':5006.84, 'N2_6548':6548.05,'HBaA_6563':6562.82,
-                      'N2_6584':6583.45,'S2_6716':6716.44,'S2_6731':6730.82,
-                      'HPaB_12818':12818.07,'HPaA_18751':18750.98}
 
 class SceneGenerator:
 
     def __init__(self):
         # Configuration mock data - INPUT-OUTPUT folders
-        self.input_path = 'data'
-        self.output_path = 'scenes'
-        self.eMPT_out = 'output_0.txt'
+        basedir = '/Users/ggiardin/JWST/IPSWork/00MockDEEP/'
+        self.input_path = os.path.join(basedir, 'data')
+        self.output_path = os.path.join(basedir, 'scenes')
+
+        # Source spectrum from Beagle output file
+        self.fname_spectrum = os.path.join(self.input_path, 'SF_and_quiescent_catalogue.fits')
+        jsonfile = os.path.join(self.input_path, 'cb2016_n2_mup300_N015_O01_deplO70_C100_Jan16_line_wavelengths_may2017.json')
+
+        # Reference file of failed-shutters for ISIM-CV3 - currently used by Peter(eMPT) & MPT:
+        self.inputFailureMap = 'nrs_msal_CHK_20151211.msl'
 
         # Configuration Instrument
         self.model_path = '/Users/ggiardin/JWST/Software/JWST_Python/data/IQLAC/'
         self.model_name = 'NIRS_FM2_05_CV3_FIT1'
         self.FWA = 'CLEAR'
         self.GWA = 'MIRROR'  # does not matter for scene creation
-        # Reference file of failed-shutters for ISIM-CV3 - currently used by Peter(eMPT) & MPT:
-        self.inputFailureMap = 'nrs_msal_CHK_20151211.msl'
 
+        # Opening json file that sepcify which (BEAGLE) lines to use
+        with open(jsonfile) as data_file:
+            data = json.loads(data_file.read())
+            print('# JSON entries', len(data))
+
+        # Building dictionary of lines to use
+        self.line_dict = {}
+        for i in range(len(data)):
+            if(data[i]['use']):
+                label = data[i]['label']
+                wl = data[i]['wl']
+                self.line_dict[label] = wl
 
     def read_eMPToutput(self, filename, nod_pos = 0):
         f = io.open(filename, 'r')
@@ -111,6 +123,11 @@ class SceneGenerator:
         return spec
 
     def get_source_tabindex(self, hdulist, src_id, verbose = False):
+
+        # TEMPORAY: IDs missing in current file
+        # Opening old file
+        old_fits = '/Users/ggiardin/JWST/IPSWork/old_MockDEEP/JCspectra_002/SF_and_quiescent_catalogue.fits'
+        hdulist = pyfits.open(old_fits)
 
         #Get ID table
         ids = hdulist['IDs'].data['ID_cat']
@@ -184,19 +201,30 @@ class SceneGenerator:
         if (verbose):
             print('Source redshift is ' + str(z))
 
-
         tab = hdulist['hii emission'].data
         wavelength = np.empty((0))
         flux = np.empty((0))
-        for i, line in enumerate(_line_dict):
-                #getting line flux and converting from [ergs-1 s-1 cm-2] to [J s-1 m-2]
-                l_flux = _cgs2mks * tab[line+'_flux'][src_ind]
+
+        for i, line in enumerate(self.line_dict):
+            lname = line+'_flux'
+            addline = True
+            #getting line flux and converting from [ergs-1 s-1 cm-2] to [J s-1 m-2]
+            try:
+                l_flux = _cgs2mks * tab[lname][src_ind]
+            except:
+                print('# WARNING: line '+lname+' is not in fits file')
+                addline = False
+            if(addline):
+                # here one could put a cut on l_flux for lines that are too faint...
+                # It would make the memory inprint of the simulations smaller...
                 flux = np.append(flux, l_flux)
                 # getting line wavelength and converting Amstrong -> m
-                wave = 1e-10 *_line_dict[line]
-                # red-shfiting line
+                wave = 1e-10 *self.line_dict[line]
+                 # red-shfiting line
                 wave = (1 + z) * wave
                 wavelength = np.append(wavelength, wave)
+        if(verbose):
+            print('# Found '+str(wavelength.size)+' lines in FITS table')
 
         input_plane = 'SKY'
         emi_lines = specunres.SpecUnres()
@@ -246,10 +274,8 @@ class SceneGenerator:
 
         for k in range(len(n)):
 
-            # Reading source spectrum from Beagle output file
-            fname_spectrum = os.path.join(self.input_path, 'SF_and_quiescent_catalogue.fits')
-            contsp = self.get_continuum_sed(fname_spectrum, src_id[k])
-            emi_lines = self.get_emi_lines(fname_spectrum, src_id[k])
+            contsp = self.get_continuum_sed(self.fname_spectrum, src_id[k])
+            emi_lines = self.get_emi_lines(self.fname_spectrum, src_id[k])
 
             # Creating IPS spectrum for this source - Point Source
             object_type = 'PS'
