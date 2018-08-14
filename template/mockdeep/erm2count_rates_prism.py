@@ -47,13 +47,15 @@ _version = "1.0.3"
 # =======================================================================
 # Script specific variables
 # =======================================================================
-input_path = 'erm/'
+base_path = '/Users/ggiardin/JWST/IPSWork/00MockDEEP/'
+input_path = base_path+'erm/'
 print("# Input path: {:s}".format(input_path))
-output_path = '/Users/ggiardin/JWST/IPSWork/MockDEEP/CountRates'
+output_path = base_path+'crates/'
 print("# Output path: {:s}".format(output_path))
-target_erm =[['CLEAR-PRISM_MOS_dither_00_n0_001.erm', 'CLEAR-PRISM_MOS_dither_00_n1_001.erm', 'CLEAR-PRISM_MOS_dither_00_n2_000.erm'],
-             ['CLEAR-PRISM_MOS_dither_1a_n0_000.erm', 'CLEAR-PRISM_MOS_dither_1a_n1_000.erm', 'CLEAR-PRISM_MOS_dither_1a_n2_000.erm'],
-             ['CLEAR-PRISM_MOS_dither_2a_n0_000.erm', 'CLEAR-PRISM_MOS_dither_2a_n1_000.erm', 'CLEAR-PRISM_MOS_dither_2a_n2_000.erm']]
+
+target_erm =[['CLEAR-PRISM_MOS_dither_00_n0_002.erm', 'CLEAR-PRISM_MOS_dither_00_n1_002.erm', 'CLEAR-PRISM_MOS_dither_00_n2_001.erm'],
+             ['CLEAR-PRISM_MOS_dither_1a_n0_001.erm', 'CLEAR-PRISM_MOS_dither_1a_n1_001.erm', 'CLEAR-PRISM_MOS_dither_1a_n2_001.erm'],
+             ['CLEAR-PRISM_MOS_dither_2a_n0_001.erm', 'CLEAR-PRISM_MOS_dither_2a_n1_001.erm', 'CLEAR-PRISM_MOS_dither_2a_n2_001.erm']]
 
 bkg_mos_erm = ['CLEAR-PRISM_MOS_background_000.erm',
                'CLEAR-PRISM_MOS_background_001.erm',
@@ -161,29 +163,31 @@ b_ctms = None
 
 # Looping over dither pointings
 for idither in range(3):
+
+    # Reading in background maps
+    b_mos = bkg_mos_erm[idither]
+    b_slit = bkg_slit_erm[idither]
+
+    # -------------------------------------------------------------------
+    # Background ERM
+    # -------------------------------------------------------------------
+    b_erm = c_electronratemap.ElectronRateMap()
+    b_erm.m_read_from_fits(os.path.join(input_path, b_mos))
+    b_erm1 = c_electronratemap.ElectronRateMap()
+    b_erm1.m_read_from_fits(os.path.join(input_path, b_slit))
+    b_erm.m_add(b_erm1)
+
     # Looping over nodding positions
     for inod in range(3):
         # -------------------------------------------------------------------
         # Name of the various files
         # -------------------------------------------------------------------
         g_mos = target_erm[idither][inod]
-        b_mos = bkg_mos_erm[idither]
-        b_slit = bkg_slit_erm[idither]
 
         # Reading in targets e-/rate maps
         g_erm = c_electronratemap.ElectronRateMap()
         g_erm.m_read_from_fits(os.path.join(input_path, g_mos))
         print('# Processing '+g_mos )
-
-        # Reading in background maps
-        # -------------------------------------------------------------------
-        # Background ERM
-        # -------------------------------------------------------------------
-        b_erm = c_electronratemap.ElectronRateMap()
-        b_erm.m_read_from_fits(os.path.join(input_path, b_mos))
-        b_erm1 = c_electronratemap.ElectronRateMap()
-        b_erm1.m_read_from_fits(os.path.join(input_path, b_slit))
-        b_erm.m_add(b_erm1)
 
         # Adding target and background together
         g_erm.m_add(b_erm)
