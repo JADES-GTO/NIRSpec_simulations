@@ -37,6 +37,8 @@ from nrspydet.misc import fpa106_toolbox as fpa106_toolbox
 from nrspysim.products import electronratemap as c_electronratemap
 from nips.archives import toolbox as archive_toolbox
 from nrspysim.misc import erm_to_sci as erm_to_sci
+from astropy.io import fits
+import numpy as np
 
 # ===============================================================
 # Module-wide variables
@@ -65,6 +67,10 @@ bkg_slit_erm = ['CLEAR-PRISM_SLIT_background_000.erm',
                 'CLEAR-PRISM_SLIT_background_001.erm',
                 'CLEAR-PRISM_SLIT_background_002.erm']
 
+# Filenames of real darks used to set the detectors quality flags
+dark491fname = base_path+'data/NRSDET-DARK-IRS2-7245080538_3_491_SE_2017-09-02T10h49m27.cts.fits'
+dark492fname = base_path+'data/NRSDET-DARK-IRS2-7245080538_3_492_SE_2017-09-02T10h49m27.cts.fits'
+
 for d in range(3):
         for n in range(3):
                 print(target_erm[d][n])
@@ -78,7 +84,7 @@ for d in range(3):
 # ===============================================================
 filetype = 'prism'
 FWA = 'CLEAR'
-GWA = 'PRSIM'
+GWA = 'PRISM'
 
 # ===============================================================
 # Expousre parameters / straibgs
@@ -201,7 +207,7 @@ for idither in range(3):
                                             scale=1.0,
                                             nexp=1, planes=None, bias=None, use_superbias=False, dark=dark, dark_sub=True,
                                             readout=readout, gain=gain, ctm=ctm, verbose=False, seed=seed,
-                                            force_trimming=False, old=True)
+                                            force_trimming=True, old=True)
 
             count = inod*nexp + iexp
             nid = base_nid + 100*idither + count +1
@@ -221,14 +227,47 @@ for idither in range(3):
 
             print('# Created output folder ' + exp_folder)
 
+            flag_arrays = []
+
+            # Reading in quality flags from one of our darks
+            hdu = fits.open(dark491fname)
+            flag_arrays.append(hdu[3].data)
+            print('# Reading in FLAG array 1')
+
+            hdu = fits.open(dark492fname)
+            flag_arrays.append(hdu[3].data)
+            print('# Reading in FLAG array 2')
+            hdu.close()
+
+            gb_ctms[0].m_set_quality_arrays(np.swapaxes(flag_arrays[0][4:2044, 4:2044], 0, 1),
+                                            np.swapaxes(flag_arrays[1][4:2044, 4:2044], 0, 1), overwrite=True)
+
+            filename = 'NRS_{:s}.oldcts.fits'.format(obs_id)
+
+            gb_ctms[0].m_write_to_fits(os.path.join(output_path, daily_folder, folder_name, filename))
+            gb_ctms[0].m_display_full(title=obs_id, filename=os.path.join(output_path, daily_folder, folder_name,
+                                                                          '{:s}.pdf'.format(filename)),
+                                      display=False, log_scale=True, category='data', comment=folder_name,
+                                      figsize=(10.8, 8.5),
+                                      dpi=100, axisbg='k', close=True, contour=False, cbar='horizontal',
+                                      transparent=False,
+                                      axis_font_size=None, time_stamp=True)
+
             filename = 'NRS_{:s}.oldcts.fits'.format(obs_id)
             gb_ctms[0].m_write_to_fits(os.path.join(output_path, daily_folder, folder_name, filename))
             gb_ctms[0].m_display_full(title=obs_id, filename=os.path.join(output_path, daily_folder, folder_name, '{:s}.pdf'.format(filename)),
                                       display=False, log_scale=True, category='data', comment=folder_name, figsize=(10.8, 8.5),
                                       dpi=100, axisbg='k', close=True, contour=False, cbar='horizontal', transparent=False,
                                       axis_font_size=None, time_stamp=True)
+            mode = 'unknown'
+            slit = 'unknown'
+            sca_ids = ['NRS1', 'NRS2']
+            read_out = 'NRSIRS2'
             for sca_index in range(2):
                 filename = 'NRS{:s}_1_{:d}_SE_{:s}.cts.fits'.format(obs_id, 491 + sca_index, datetime_file)
+                gb_ctms[sca_index + 1].m_set_keywords(nid, 'IPS', sca_ids[sca_index], mode, slit, FWA, GWA, read_out,
+                                                      False)
+                gb_ctms[sca_index + 1].quality = flag_arrays[sca_index]
                 gb_ctms[sca_index+1].m_write_to_fits(os.path.join(output_path, daily_folder, folder_name, filename))
 
 

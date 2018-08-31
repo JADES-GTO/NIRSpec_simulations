@@ -43,7 +43,7 @@ import numpy as np
 # ===============================================================
 # Module-wide variables
 # ===============================================================
-_name = "erm2count_rates.py"
+_name = "erm2count_rates_gratings.py"
 _version = "1.0.3"
 
 # =======================================================================
@@ -61,8 +61,8 @@ print("# Output path: {:s}".format(output_path))
 # Spectrograph config
 # ===============================================================
 #Change as applicable
-FWA = 'F070LP'
-GWA = 'G140M'
+FWA = 'F290LP'
+GWA = 'G395M'
 daily_folder = 'Day2018139'
 
 target_erm =[[FWA+'_'+GWA+'_MOS_dither_00_n0_000.erm', FWA+'_'+GWA+'_MOS_dither_00_n1_000.erm', FWA+'_'+GWA+'_MOS_dither_00_n2_000.erm'],
