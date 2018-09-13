@@ -41,22 +41,24 @@ from nrspydet.misc import fpa106_toolbox as fpa106_toolbox
 _name = "erm2count_rates_unity_prism.py"
 _version = "1.0"
 
-# =======================================================================
-# Script specific variables
-# =======================================================================
-input_path = 'erm/'
-print("# Input path: {:s}".format(input_path))
-output_path = '/Users/ggiardin/JWST/IPSWork/MockDEEP/CountRates'
-print("# Output path: {:s}".format(output_path))
-mos_erm =['CLEAR-PRISM_MOS_unity_000.erm','CLEAR-PRISM_MOS_unity_001.erm','CLEAR-PRISM_MOS_unity_002.erm']
-fxs_erm = ['CLEAR-PRISM_SLIT_unity_000.erm','CLEAR-PRISM_SLIT_unity_001.erm', 'CLEAR-PRISM_SLIT_unity_002.erm']
-
-
 # ===============================================================
 # Spectrograph config
 # ===============================================================
-FWA = 'CLEAR'
-GWA = 'PRISM'
+FWA = 'F290LP'
+GWA = 'G395M'
+
+
+# =======================================================================
+# Script specific variables
+# =======================================================================
+base_path = '/Users/ggiardin/JWST/IPSWork/00MockDEEP/'
+input_path = base_path+'erm/'
+print("# Input path: {:s}".format(input_path))
+output_path = base_path+'crates/'
+print("# Output path: {:s}".format(output_path))
+
+mos_erm =[FWA+'_'+GWA+'_MOS_unity_000.erm', FWA+'_'+GWA+'_MOS_unity_001.erm', FWA+'_'+GWA+'_MOS_unity_002.erm']
+fxs_erm =[FWA+'_'+GWA+'_SLIT_unity_000.erm',FWA+'_'+GWA+'_SLIT_unity_001.erm',FWA+'_'+GWA+'_SLIT_unity_002.erm']
 
 # ===============================================================
 # Expousre parameters / straibgs
@@ -68,7 +70,7 @@ env = 'IPS'
 pipeline_id = archive_toolbox._dic_env[env][0]
 jlab_id = archive_toolbox._dic_env[env][1]
 print("# Environment: {:s} ({:s} , {:s})".format(env, pipeline_id, jlab_id))
-base_obs_id = 'FLAT-PRM'
+base_obs_id = 'FLAT-'+GWA
 print("# Base observation ID: {:s}".format(base_obs_id))
 datetime_start = '20180518T120000.000'
 datetime_end = '20180518T124800.000'

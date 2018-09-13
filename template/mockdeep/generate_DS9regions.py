@@ -46,7 +46,7 @@ class RegionGenerator:
         list_posSCA491 = []
         list_posSCA492 = []
         for k in range(len(n)):
-            print(q[k], i[k], j[k], offset_x[k], offset_y[k])
+            # print(q[k], i[k], j[k], offset_x[k], offset_y[k])
             posMSA = msa.m_positionMS(q[k], i[k], j[k], offsetx=offset_x[k], offsety=offset_y[k])
             posFPA = spectrograph.m_applyForwardTransformToGrid(posMSA, wavelength, order)
             posSCA_491 = fpa.m_findFractionalPixelsNoTest(posFPA[0], posFPA[1], 491)
@@ -72,20 +72,21 @@ class RegionGenerator:
         f.write('image\n')
 
         for src in list_posSCA491:
-            # cx = src[0][0][0] - 4  # because Preocessed maps are 2040*2040 in size (i.e. there are no ref.pixels)
-            # cy = src[0][1][0] - 4  # because Preocessed maps are 2040*2040 in size (i.e. there are no ref.pixels)
+            cx = src[0][0][0] - 4  # because Preocessed maps are 2040*2040 in size (i.e. there are no ref.pixels)
+            cy = src[0][1][0] - 4  # because Preocessed maps are 2040*2040 in size (i.e. there are no ref.pixels)
             # If you want to write regions for .erm file uncomment these:
-            cx= src[0][0][0]
-            cy= src[0][1][0]
+            #cx= src[0][0][0]
+            #cy= src[0][1][0]
             q = src[1]
             i = src[2]
             j = src[3]
             name = src[4]
             info_text = 'MSA=[' + str(q) + ' ' + str(i) + ' ' + str(j) + ']' + ' ' + name
-            print('# '+info_text)
+            #print('# '+info_text)
             f.write('circle(' + str(cx) + ',' + str(cy) + ',' + str(radius) + ') # text={(' + info_text + ')}\n')
 
         f.close()
+        print('# '+filename1+' saved')
 
         f = open(filename2, 'w')
 
@@ -96,21 +97,22 @@ class RegionGenerator:
         f.write('image\n')
 
         for src in list_posSCA492:
-            # cx = (2048 - src[0][0][0]) - 4  # Because in processed maps SCA 492 is swapped (in x & y) and there are no ref.pixels
-            # cy = (2048 - src[0][1][0]) - 4  # Because in processed maps SCA 492 is swapped (in x & y) and there are no ref.pixels
+            cx = (2048 - src[0][0][0]) - 4  # Because in processed maps SCA 492 is swapped (in x & y) and there are no ref.pixels
+            cy = (2048 - src[0][1][0]) - 4  # Because in processed maps SCA 492 is swapped (in x & y) and there are no ref.pixels
             # If you want to write regions for .erm file uncomment these:
-            cx= src[0][0][0]
-            cy= src[0][1][0]
+            #cx= src[0][0][0]
+            #cy= src[0][1][0]
             q = src[1]
             i = src[2]
             j = src[3]
             name = src[4]
             info_text = 'MSA=[' + str(q) + ' ' + str(i) + ' ' + str(j) + ']' + ' ' + name
-            print('# ' + info_text)
+            #print('# ' + info_text)
             f.write('circle(' + str(cx) + ',' + str(cy) + ',' + str(radius) + ') # text={(' + info_text + ')}\n')
 
         f.close()
 
+        print('# '+filename2+' saved')
         print('# Done')
 
 
@@ -125,7 +127,7 @@ if __name__ == '__main__':
     # Iterate over dither
     for dfile in dithers_fname:
         print('# Processing '+dfile)
-        # Iterate over noddings
-        for i in range(0, 3):
+        # Iterate over noddings - only region for nod=0 generted for the moment
+        for i in range(0, 1):
             print('# Generate DS9 regions for mask '+dfile)
             rg.generate(dfile, nod_pos=i, folder_root=dfile[7:len(dfile)-4])

@@ -38,19 +38,18 @@ from nrspydet.misc import fpa106_toolbox as fpa106_toolbox
 # ===============================================================
 # Module-wide variables
 # ===============================================================
-_name = "erm2count_rates_unity_prism.py"
+_name = "erm2count_rates_radio_prism.py"
 _version = "1.0"
 
 # =======================================================================
 # Script specific variables
 # =======================================================================
-input_path = 'erm/'
+input_path = '/Users/ggiardin/JWST/IPSWork/00MockDEEP/erm/'
 print("# Input path: {:s}".format(input_path))
-output_path = '/Users/ggiardin/JWST/IPSWork/MockDEEP/CountRates'
+output_path = '/Users/ggiardin/JWST/IPSWork/00MockDEEP/coadd_crates/'
 print("# Output path: {:s}".format(output_path))
-mos_erm =['CLEAR-PRISM_MOS_unity_000.erm','CLEAR-PRISM_MOS_unity_001.erm','CLEAR-PRISM_MOS_unity_002.erm']
-fxs_erm = ['CLEAR-PRISM_SLIT_unity_000.erm','CLEAR-PRISM_SLIT_unity_001.erm', 'CLEAR-PRISM_SLIT_unity_002.erm']
-
+radio_erm = 'CLEAR-PRISM_MOS_mos-radio-01_000.erm'
+#flat_erm = 'CLEAR-PRISM_MOS_unity_003.erm'
 
 # ===============================================================
 # Spectrograph config
@@ -68,14 +67,15 @@ env = 'IPS'
 pipeline_id = archive_toolbox._dic_env[env][0]
 jlab_id = archive_toolbox._dic_env[env][1]
 print("# Environment: {:s} ({:s} , {:s})".format(env, pipeline_id, jlab_id))
-base_obs_id = 'FLAT-PRM'
+base_obs_id = 'STND-PRM'
+#base_obs_id = 'STFL-PRM'
 print("# Base observation ID: {:s}".format(base_obs_id))
 datetime_start = '20180518T120000.000'
 datetime_end = '20180518T124800.000'
 print("# Datetime start and end: {} : {}".format(datetime_start, datetime_end))
 datetime_file = '2018-03-03T12h50m00'
 print("# Datetime file: {}".format(datetime_file))
-daily_folder = 'Day2018150'
+daily_folder = 'Day2018139'
 print("# Daily folder: {:s}".format(daily_folder))
 print("# =====================================")
 print("# Detector configuration:")
@@ -106,63 +106,55 @@ gain = fpa106_toolbox.f_generate_gain('FULL-FRAME')
 ctm = fpa106_toolbox.f_generate_ctm()
 
 print("# Generating the count-rate maps.")
-# Looping over dither pointings (all unity-maps)
-count=0
-for i in range(len(mos_erm)):
-    t_map = mos_erm[i]
-    print('# Processing ' + t_map)
-    t_erm = c_electronratemap.ElectronRateMap()
-    t_erm.m_read_from_fits(os.path.join(input_path, t_map))
 
-    s_erm = c_electronratemap.ElectronRateMap()
-    s_erm.m_read_from_fits(os.path.join(input_path, fxs_erm[i]))
+t_map = radio_erm
+#t_map = flat_erm
+print('# Processing ' + t_map)
+t_erm = c_electronratemap.ElectronRateMap()
+t_erm.m_read_from_fits(os.path.join(input_path, t_map))
 
-    # Adding slit and mos flats together
-    t_erm.m_add(s_erm)
-    # -------------------------------------------------------------------
-    # Generating the exposure folders and the associated exposures - noiseless!
-    # -------------------------------------------------------------------
+#Setting header (for obs_id)
+t_erm.m_set_header('STND_MOS', _name, 'MockDEEP')
 
-    #Noiseless Unity - ** OLD ISP format **
-    unity_ctms = erm_to_sci.f_standard(t_erm, multiaccum, noise_category='noiseless',  gain=gain,
-                                       ctm=ctm, verbose=False, force_trimming=True, old=True)
+#Noiseless Unity - ** OLD ISP format **
+unity_ctms = erm_to_sci.f_standard(t_erm, multiaccum, noise_category='noiseless',  gain=gain,
+                                   ctm=ctm, verbose=False, force_trimming=True, old=True)
 
 
-    nid = base_nid + 500+ count +1
-    obs_id = '{:s}-{:02d}'.format(base_obs_id, count+1)
-    folder_name = 'NRS{:s}_1_{:d}_{:s}_{:s}_{:s}_{:s}'.format(obs_id, nid, jlab_id, pipeline_id,
-                                                                      datetime_start, datetime_end)
-    exp_folder = os.path.join(output_path, daily_folder, folder_name)
+nid = base_nid + 600+1
+obs_id = '{:s}-{:02d}'.format(base_obs_id, 1)
+folder_name = 'NRS{:s}_1_{:d}_{:s}_{:s}_{:s}_{:s}'.format(obs_id, nid, jlab_id, pipeline_id,
+                                                          datetime_start, datetime_end)
+exp_folder = os.path.join(output_path, daily_folder, folder_name)
 
-    try:
-        os.makedirs(exp_folder)
-    except Exception as error:
-        if (error.args[0] != 17):
-            print('ERROR - Encountered an error when trying to create the exposure folder:')
-            print('ERROR - {:s}'.format(exp_folder))
-            print('ERROR - {}'.format(error.args))
-            raise ValueError
+try:
+    os.makedirs(exp_folder)
+except Exception as error:
+    if (error.args[0] != 17):
+        print('ERROR - Encountered an error when trying to create the exposure folder:')
+        print('ERROR - {:s}'.format(exp_folder))
+        print('ERROR - {}'.format(error.args))
+        raise ValueError
 
-    print('# Created output folder ' + exp_folder)
+print('# Created output folder ' + exp_folder)
 
-    filename = 'NRS_{:s}.oldcts.fits'.format(obs_id)
+filename = 'NRS_{:s}.oldcts.fits'.format(obs_id)
 
-    unity_ctms[0].m_write_to_fits(os.path.join(output_path, daily_folder, folder_name, filename))
-    unity_ctms[0].m_display_full(title=obs_id,
-                                 filename=os.path.join(output_path, daily_folder, folder_name, '{:s}.pdf'.format(filename)),
-                                 display=False, log_scale=True, category='data', comment=folder_name, figsize=(10.8, 8.5),
-                                 dpi=100, axisbg='k', close=True, contour=False, cbar='horizontal', transparent=False,
-                                 axis_font_size=None, time_stamp=True)
+unity_ctms[0].m_write_to_fits(os.path.join(output_path, daily_folder, folder_name, filename))
+unity_ctms[0].m_display_full(title=obs_id,
+                             filename=os.path.join(output_path, daily_folder, folder_name, '{:s}.pdf'.format(filename)),
+                             display=False, log_scale=True, category='data', comment=folder_name, figsize=(10.8, 8.5),
+                             dpi=100, axisbg='k', close=True, contour=False, cbar='horizontal', transparent=False,
+                             axis_font_size=None, time_stamp=True)
 
-    mode = 'unknown'
-    slit = 'unknown'
-    sca_ids = ['NRS1', 'NRS2']
-    read_out = 'NRSIRS2'
-    for sca_index in range(2):
-        unity_ctms[sca_index +1 ].m_set_keywords(nid, 'IPS', sca_ids[sca_index], mode, slit, FWA, GWA, read_out, False)
-        filename = 'NRS{:s}_1_{:d}_SE_{:s}.cts.fits'.format(obs_id, 491 + sca_index, datetime_file)
-        unity_ctms[sca_index+1].m_write_to_fits(os.path.join(output_path, daily_folder, folder_name, filename))
+mode = 'unknown'
+slit = 'unknown'
+sca_ids = ['NRS1', 'NRS2']
+read_out = 'NRSIRS2'
+for sca_index in range(2):
+    unity_ctms[sca_index +1 ].m_set_keywords(nid, 'IPS', sca_ids[sca_index], mode, slit, FWA, GWA, read_out, False)
+    filename = 'NRS{:s}_1_{:d}_SE_{:s}.cts.fits'.format(obs_id, 491 + sca_index, datetime_file)
+    unity_ctms[sca_index+1].m_write_to_fits(os.path.join(output_path, daily_folder, folder_name, filename))
 
-    count += 1
 
 print('# Done')

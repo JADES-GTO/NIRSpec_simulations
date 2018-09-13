@@ -53,7 +53,7 @@ base_path = '/Users/ggiardin/JWST/IPSWork/00MockDEEP/'
 input_path = base_path+'erm/'
 print("# Input path: {:s}".format(input_path))
 output_path = base_path+'crates/'
-# output_path = base_path+'coadd_crates/'
+#output_path = base_path+'coadd_crates/'
 
 print("# Output path: {:s}".format(output_path))
 
