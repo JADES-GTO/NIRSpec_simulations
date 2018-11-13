@@ -143,7 +143,7 @@ else:
 # Generating the instances of the reference files (nrspydet.references)
 # =======================================================================
 print("# Generating the instances of the reference files.")
-dark = fpa106_toolbox.f_generate_dark(uniform=False, seed=seed)
+dark = fpa106_toolbox.f_generate_dark(uniform=False, mode='IRS2', seed=seed)
 gain = fpa106_toolbox.f_generate_gain('FULL-FRAME')
 ctm = fpa106_toolbox.f_generate_ctm()
 readout = fpa106_toolbox.f_generate_readout_noise('IRS2')
