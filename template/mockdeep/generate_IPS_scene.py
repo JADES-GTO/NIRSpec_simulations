@@ -37,10 +37,10 @@ class SceneGenerator:
         # Configuration mock data - INPUT-OUTPUT folders
         basedir = '/Users/ggiardin/JWST/IPSWork/00MockDEEP/'
         self.input_path = os.path.join(basedir, 'data')
-        self.output_path = os.path.join(basedir, 'scenes')
+        self.output_path = os.path.join(basedir, 'test_scene')
 
         # Source spectrum from Beagle output file
-        self.fname_spectrum = os.path.join(self.input_path, 'SF_and_quiescent_catalogue.fits')
+        self.fname_spectrum = os.path.join(self.input_path, 'SF_and_quiescent_catalogue_mags.fits')
         jsonfile = os.path.join(self.input_path, 'cb2016_n2_mup300_N015_O01_deplO70_C100_Jan16_line_wavelengths_may2017.json')
 
         # Reference file of failed-shutters for ISIM-CV3 - currently used by Peter(eMPT) & MPT:
@@ -80,12 +80,12 @@ class SceneGenerator:
         for iline, line in enumerate(f):
             # Finding where to start reading in...
             if ('Accepted targets, assigned slitlets' in line):
-                print('# *** Found begin of list***')
+                #print('# *** Found begin of list***')
                 break
 
         # skipping header
-        print(f.readline())
-        print(f.readline())
+        f.readline()
+        f.readline()
 
         ind_q = 4+5*(nod_pos)
         ind_i = ind_q+1
@@ -123,12 +123,6 @@ class SceneGenerator:
         return spec
 
     def get_source_tabindex(self, hdulist, src_id, verbose = False):
-
-        # TEMPORAY: IDs missing in current file
-        # Opening old file
-        old_fits = '/Users/ggiardin/JWST/IPSWork/old_MockDEEP/JCspectra_002/SF_and_quiescent_catalogue.fits'
-        hdulist = pyfits.open(old_fits)
-
         #Get ID table
         ids = hdulist['IDs'].data['ID_cat']
         src_tabindex = np.where(ids == int(src_id))
@@ -272,8 +266,7 @@ class SceneGenerator:
         input_plane = 'SKY'
         object_list.m_set_input_plane(input_plane)
 
-        for k in range(len(n)):
-
+        for k in range(50):
             contsp = self.get_continuum_sed(self.fname_spectrum, src_id[k])
             emi_lines = self.get_emi_lines(self.fname_spectrum, src_id[k])
 
@@ -291,11 +284,12 @@ class SceneGenerator:
             # Emission lines
             current_object.m_add_specunres(emi_lines, overwrite=False)
 
+
             # Write file
             filename = os.path.join(self.output_path, output_folder , src_fitsfile)
             current_object.m_write_to_fits(filename)
 
-            # print('# Processing source '+src_id[k]+' - MOS: '+str(q[k])+' '+str(i[k])+' '+ str(j[k]))
+            print('# Processing source '+src_id[k]+' - MOS: '+str(q[k])+' '+str(i[k])+' '+ str(j[k]))
             current_x, current_y = projtools.f_project_micro_shutter(OTE, NIRSpec,
                                                                      q[k], i[k], j[k], offset_x=offset_x[k], offset_y=offset_y[k],
                                                                      wavelength=2.5e-6)
@@ -354,6 +348,7 @@ class SceneGenerator:
             # Here need to add failed-open!
             "# Opening input failed closed/opened map."
             flist = msaoperability.MSAOperability()
+            print('# Opening msl file')
             flist.m_readFromFITS(os.path.join(self.input_path, self.inputFailureMap))
             print('# Opened file: ', self.inputFailureMap)
 
@@ -392,9 +387,9 @@ if __name__ == '__main__':
     sg = SceneGenerator()
 
     # Iterate over dither
-    for dfile in dithers_fname:
+    for dfile in dithers_fname[0:1]:
         print('# Processing '+dfile)
         # Iterate over noddings
-        for i in range(0, 3):
+        for i in range(0, 1):
             print('Generate IPS scene for mask '+dfile)
             sg.generate(dfile, nod_pos=i, folder_root=dfile[7:len(dfile)-4])
