@@ -52,7 +52,7 @@ _version = "1.0.3"
 base_path = '/Users/ggiardin/JWST/IPSWork/00MockDEEP/'
 input_path = base_path+'erm/'
 print("# Input path: {:s}".format(input_path))
-output_path = base_path+'crates/'
+output_path = base_path+'prova_crates/'
 print("# Output path: {:s}".format(output_path))
 
 target_erm =[['CLEAR-PRISM_MOS_dither_00_n0_002.erm', 'CLEAR-PRISM_MOS_dither_00_n1_002.erm', 'CLEAR-PRISM_MOS_dither_00_n2_001.erm'],
@@ -261,12 +261,13 @@ for idither in range(3):
                                       axis_font_size=None, time_stamp=True)
             mode = 'unknown'
             slit = 'unknown'
+            aperture = 'unknown'
             sca_ids = ['NRS1', 'NRS2']
             read_out = 'NRSIRS2'
             for sca_index in range(2):
                 filename = 'NRS{:s}_1_{:d}_SE_{:s}.cts.fits'.format(obs_id, 491 + sca_index, datetime_file)
-                gb_ctms[sca_index + 1].m_set_keywords(nid, 'IPS', sca_ids[sca_index], mode, slit, FWA, GWA, read_out,
-                                                      False)
+                gb_ctms[sca_index + 1].m_set_keywords(nid, 'IPS', sca_ids[sca_index], mode, slit, aperture,
+                                                      FWA, GWA, read_out, False)
                 gb_ctms[sca_index + 1].quality = flag_arrays[sca_index]
                 gb_ctms[sca_index+1].m_write_to_fits(os.path.join(output_path, daily_folder, folder_name, filename))
 
