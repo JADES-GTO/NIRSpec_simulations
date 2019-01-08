@@ -148,7 +148,7 @@ else:
 # Generating the instances of the reference files (nrspydet.references)
 # =======================================================================
 print("# Generating the instances of the reference files.")
-dark = fpa106_toolbox.f_generate_dark(uniform=False, seed=seed)
+dark = fpa106_toolbox.f_generate_dark(uniform=False, mode='IRS2', seed=seed)
 gain = fpa106_toolbox.f_generate_gain('FULL-FRAME')
 ctm = fpa106_toolbox.f_generate_ctm()
 readout = fpa106_toolbox.f_generate_readout_noise('IRS2')
@@ -266,12 +266,13 @@ for idither in range(3):
                                       axis_font_size=None, time_stamp=True)
             mode = 'unknown'
             slit = 'unknown'
+            aperture = 'unknown'
             sca_ids = ['NRS1', 'NRS2']
             read_out = 'NRSIRS2'
             for sca_index in range(2):
                 filename = 'NRS{:s}_1_{:d}_SE_{:s}.cts.fits'.format(obs_id, 491 + sca_index, datetime_file)
-                gb_ctms[sca_index + 1].m_set_keywords(nid, 'IPS', sca_ids[sca_index], mode, slit, FWA, GWA, read_out,
-                                                      False)
+                gb_ctms[sca_index + 1].m_set_keywords(nid, 'IPS', sca_ids[sca_index], mode, slit, aperture,
+                                                      FWA, GWA, read_out, False)
                 gb_ctms[sca_index + 1].quality = flag_arrays[sca_index]
                 gb_ctms[sca_index+1].m_write_to_fits(os.path.join(output_path, daily_folder, folder_name, filename))
 
