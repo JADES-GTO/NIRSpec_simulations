@@ -39,6 +39,7 @@ from nips.archives import toolbox as archive_toolbox
 from nrspysim.misc import erm_to_sci as erm_to_sci
 from astropy.io import fits
 import numpy as np
+from nrspylib.geometry import tiltpoly ## TO SET GWA angles..!!!
 
 # ===============================================================
 # Module-wide variables
@@ -52,8 +53,14 @@ _version = "1.0.3"
 base_path = '/Users/ggiardin/JWST/IPSWork/00MockDEEP/'
 input_path = base_path+'erm/'
 print("# Input path: {:s}".format(input_path))
-output_path = base_path+'prova_crates/'
+output_path = base_path+'crates/'
+#output_path = base_path+'Archive/'
 print("# Output path: {:s}".format(output_path))
+
+#These are only needed to set the GWA keywords - should no longer be needed in later version of IPS (IPS> 4.0)
+#Hard coding model path!!! For the simulation we alaways use CV3!!!!
+model_path = '/Users/ggiardin/JWST/Software/JWST_Python/data/IQLAC/'
+model_name = 'NIRS_FM2_05_CV3_FIT1'
 
 target_erm =[['CLEAR-PRISM_MOS_dither_00_n0_002.erm', 'CLEAR-PRISM_MOS_dither_00_n1_002.erm', 'CLEAR-PRISM_MOS_dither_00_n2_001.erm'],
              ['CLEAR-PRISM_MOS_dither_1a_n0_001.erm', 'CLEAR-PRISM_MOS_dither_1a_n1_001.erm', 'CLEAR-PRISM_MOS_dither_1a_n2_001.erm'],
@@ -239,26 +246,29 @@ for idither in range(3):
             print('# Reading in FLAG array 2')
             hdu.close()
 
+            # Before writing out the cont-rate maps (new format for NIPS2.0) we need to update the GWA kwywords because
+            # the version of the IPS with which they were created did not populated the GWA keyword with the correct value
+            # Therfore opening the model gtp file:
+
+            filename = model_path + model_name + '/Description/disperser_' + GWA + '_TiltY.gtp'
+            poly = tiltpoly.TiltPoly()
+            poly.m_readFromFile(filename)
+            GWA_XTIL = poly.zeroreadings[0]  # dispersion direction
+
+            filename = model_path + model_name + '/Description/disperser_' + GWA + '_TiltX.gtp'
+            poly = tiltpoly.TiltPoly()
+            poly.m_readFromFile(filename)
+            GWA_YTIL = poly.zeroreadings[0]  # spatial direction
+
             gb_ctms[0].m_set_quality_arrays(np.swapaxes(flag_arrays[0][4:2044, 4:2044], 0, 1),
                                             np.swapaxes(flag_arrays[1][4:2044, 4:2044], 0, 1), overwrite=True)
 
-            filename = 'NRS_{:s}.oldcts.fits'.format(obs_id)
-
-            gb_ctms[0].m_write_to_fits(os.path.join(output_path, daily_folder, folder_name, filename))
-            gb_ctms[0].m_display_full(title=obs_id, filename=os.path.join(output_path, daily_folder, folder_name,
-                                                                          '{:s}.pdf'.format(filename)),
-                                      display=False, log_scale=True, category='data', comment=folder_name,
-                                      figsize=(10.8, 8.5),
-                                      dpi=100, axisbg='k', close=True, contour=False, cbar='horizontal',
-                                      transparent=False,
-                                      axis_font_size=None, time_stamp=True)
-
-            filename = 'NRS_{:s}.oldcts.fits'.format(obs_id)
-            gb_ctms[0].m_write_to_fits(os.path.join(output_path, daily_folder, folder_name, filename))
-            gb_ctms[0].m_display_full(title=obs_id, filename=os.path.join(output_path, daily_folder, folder_name, '{:s}.pdf'.format(filename)),
-                                      display=False, log_scale=True, category='data', comment=folder_name, figsize=(10.8, 8.5),
-                                      dpi=100, axisbg='k', close=True, contour=False, cbar='horizontal', transparent=False,
-                                      axis_font_size=None, time_stamp=True)
+            #filename = 'NRS_{:s}.oldcts.fits'.format(obs_id)
+            #gb_ctms[0].m_write_to_fits(os.path.join(output_path, daily_folder, folder_name, filename))
+            #gb_ctms[0].m_display_full(title=obs_id, filename=os.path.join(output_path, daily_folder, folder_name, '{:s}.pdf'.format(filename)),
+            #                           display=False, log_scale=True, category='data', comment=folder_name, figsize=(10.8, 8.5),
+            #                           dpi=100, axisbg='k', close=True, contour=False, cbar='horizontal', transparent=False,
+            #                           axis_font_size=None, time_stamp=True)
             mode = 'unknown'
             slit = 'unknown'
             aperture = 'unknown'
@@ -266,6 +276,8 @@ for idither in range(3):
             read_out = 'NRSIRS2'
             for sca_index in range(2):
                 filename = 'NRS{:s}_1_{:d}_SE_{:s}.cts.fits'.format(obs_id, 491 + sca_index, datetime_file)
+                gb_ctms[sca_index + 1].fits_header['GWA_XTIL'] = GWA_XTIL
+                gb_ctms[sca_index + 1].fits_header['GWA_YTIL'] = GWA_YTIL
                 gb_ctms[sca_index + 1].m_set_keywords(nid, 'IPS', sca_ids[sca_index], mode, slit, aperture,
                                                       FWA, GWA, read_out, False)
                 gb_ctms[sca_index + 1].quality = flag_arrays[sca_index]
